@@ -20,15 +20,17 @@ class Inventory {
             for (int i = 0; i < MAX_ITEMS; ++i) {
                 if (items[i] == nullptr) {
                     items[i] = item;
+
+                    item->centralizarItem(4, 10, 31, 5 + i * 14);
+
                     return;
                 }
             }
         }
-
-
-        void removeItem(int index) {
+        
+        void removeItem(int index, int posL, int posC) {
             if (index >= 0 && index < MAX_ITEMS && items[index] != nullptr) {
-                delete items[index];
+                items[index]->moveTo(posL, posC);
                 items[index] = nullptr;
             }
         }

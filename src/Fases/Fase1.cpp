@@ -5,12 +5,13 @@
 void FaseUm::init() {
     items.push_back(new Item(new ObjetoDeJogo("Key1", Sprite("rsc/Sprites/Key.img"), 20, 20), 0, true));
     items.push_back(new Item(new ObjetoDeJogo("Key2", Sprite("rsc/Sprites/Key.img"), 20, 30), 0, true));
+    items.push_back(new Item(new ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 20, 40), 0, true));
 
     pointer = new ObjetoDeJogo("Pointer", TextSprite("*"), 31, 6);
     pointer->desativarObj();
     objs.push_back(pointer);
 
-    player = new Player(ObjetoDeJogo("Player", Sprite("rsc/Sprites/Player.img"), 10, 10));
+    player = new Player(ObjetoDeJogo("Player", SpriteAnimado("rsc/Sprites/Player.img"), 10, 10));
     objs.push_back(player);
 }
 

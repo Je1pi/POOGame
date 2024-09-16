@@ -15,7 +15,7 @@ class Item {
         function<void()> useFunction;
 
     public:
-        Item(ObjetoDeJogo* obj = nullptr, int damage = 0, bool usable = false, int id = 0) 
+        Item(ObjetoDeJogo* obj = nullptr, int damage = 0, bool usable = false) 
             : objeto(obj), damage(damage), usable(usable) {}
 
         void setObjeto(ObjetoDeJogo* obj) {
@@ -54,10 +54,6 @@ class Item {
             if (usable && useFunction) {
                 useFunction();
             }
-        }
-
-        void dropItem(const int& posL, const int& posC) {
-            moveTo(posL, posC);
         }
 
         void moveTo(const int& l, const int& c) const {

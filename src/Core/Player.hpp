@@ -2,7 +2,6 @@
 #define PLAYER_HPP
 
 #include "../ASCII_Engine/ObjetoDeJogo.hpp"
-#include "Rune.hpp"
 #include "Inventory.hpp"
 
 using namespace std;
@@ -27,7 +26,7 @@ class Player : public ObjetoDeJogo {
 
         void removeItem() {
             if (selectedItemIndex >= 0 && selectedItemIndex < inventory.getSize()) {
-                inventory.removeItem(selectedItemIndex);
+                inventory.removeItem(selectedItemIndex, this->getPosL(), this->getPosC());
                 selectedItemIndex = -1;
             }
         }
