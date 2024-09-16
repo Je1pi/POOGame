@@ -11,7 +11,7 @@ void FaseUm::init() {
     pointer->desativarObj();
     objs.push_back(pointer);
 
-    player = new Player(ObjetoDeJogo("Player", SpriteAnimado("rsc/Sprites/Player.img"), 10, 10));
+    player = new Player(ObjetoDeJogo("Player", Sprite("rsc/Sprites/Player.img"), 10, 10));
     objs.push_back(player);
 }
 
