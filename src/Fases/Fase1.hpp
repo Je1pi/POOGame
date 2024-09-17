@@ -6,17 +6,21 @@
 #include <vector>
 #include "../ASCII_Engine/Fase.hpp"
 #include "../Core/Player.hpp"
+#include "../Core/Entity.hpp"
 #include "../Core/Item.hpp"
 #include "../Core/Door.hpp"
+#include "../Core/Bullet.hpp"
 #include "../Core/Inventory.hpp"
 
 using namespace std;
 
 class FaseUm : public Fase {
     private:
-        Player *player;
+        list<Entity*> entities;
         list<Item*> items;
-        ObjetoDeJogo* pointer;
+        list<Bullet*> bullets;
+        ObjetoDeJogo* selectionItem;
+        Player* player;
         Door *door;
 
     public:
@@ -28,7 +32,9 @@ class FaseUm : public Fase {
         virtual void init();
         virtual unsigned run(SpriteBuffer &screen);
 
-        bool colissionItems() const;
+        void bulletUpdate(SpriteBuffer &screen);
+
+        bool colissionObjs() const;
         Item* getColissionItem() const;
         virtual void draw(SpriteBase &screen, int x = 0, int y = 0) override;
 };

@@ -2,40 +2,48 @@
 #define INVENTORY_HPP
 
 #include "Item.hpp"
-#include <vector>
+#include "Entity.hpp"
+#include "../ASCII_Engine/Sprite.hpp"
+#include "../ASCII_Engine/ObjetoDeJogo.hpp"
 
 class Inventory {
     private:
+        int selectedItemIndex;
         static const int MAX_ITEMS = 5;
         Item* items[MAX_ITEMS];
 
     public:
-        Inventory() {
+        Inventory() : selectedItemIndex(-1) {
             for (int i = 0; i < MAX_ITEMS; ++i) {
                 items[i] = nullptr;
             }
         }
 
-        void addItem(Item* item) {
+        void addItem(Item* item, Entity *entity) {
             for (int i = 0; i < MAX_ITEMS; ++i) {
                 if (items[i] == nullptr) {
                     items[i] = item;
 
-                    item->centralizarItem(4, 10, 31, 5 + i * 14);
+                    item->setHolder(entity);
+
+                    item->centralizarItem(4, 9, 31, 5 + i * 13);
 
                     return;
                 }
             }
         }
         
-        void removeItem(int index, int posL, int posC) {
+        void removeItem(int posL, int posC) {
+            int index = selectedItemIndex;
             if (index >= 0 && index < MAX_ITEMS && items[index] != nullptr) {
                 items[index]->moveTo(posL, posC);
+                items[index]->removeHolder();
                 items[index] = nullptr;
             }
         }
 
-        Item* getItem(int index) const {
+        Item* getItem() const {
+            int index = selectedItemIndex;
             if (index >= 0 && index < MAX_ITEMS) {
                 return items[index];
             }
@@ -51,6 +59,18 @@ class Inventory {
 
         int getSize() const {
             return MAX_ITEMS;
+        }
+
+        int getSelectedItemIndex() const {
+            return selectedItemIndex;
+        }
+
+        void selectItem(int index) {
+            selectedItemIndex = index;
+        }
+
+        void deselectItem() {
+            selectedItemIndex = -1;
         }
 };
 

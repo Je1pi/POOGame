@@ -1,10 +1,6 @@
 #ifndef DOOR_HPP
 #define DOOR_HPP
 
-#include <vector>
-#include "Player.hpp"
-#include "Inventory.hpp"
-#include "Item.hpp"
 #include "../ASCII_Engine/ObjetoDeJogo.hpp"
 
 using namespace std;

@@ -3,32 +3,21 @@
 
 #include <functional>
 #include "../ASCII_Engine/ObjetoDeJogo.hpp"
+#include "Entity.hpp"
 #include "../ASCII_Engine/Sprite.hpp"
 
 using namespace std;
 
-class Item {
+class Item : public ObjetoDeJogo {
     private:
-        ObjetoDeJogo* objeto;
         bool usable;
         int damage;
+        Entity *holder;
         function<void()> useFunction;
 
     public:
-        Item(ObjetoDeJogo* obj = nullptr, int damage = 0, bool usable = false) 
-            : objeto(obj), damage(damage), usable(usable) {}
-
-        void setObjeto(ObjetoDeJogo* obj) {
-            objeto = obj;
-        }
-
-        ObjetoDeJogo* getObjeto() const {
-            return objeto;
-        }
-
-        string getName() const {
-            return objeto->getName();
-        }
+        Item(const ObjetoDeJogo& obj, const int& dmg = 0, const bool& usable = false) 
+            : ObjetoDeJogo(obj), damage(dmg), usable(usable), holder(nullptr) {}
 
         void setDamage(int dmg) {
             damage = dmg;
@@ -40,6 +29,18 @@ class Item {
 
         void setUsable(bool use) {
             usable = use;
+        }
+
+        void setHolder(Entity* entity) {
+            holder = entity;
+        }
+
+        Entity* getHolder() const {
+            return holder;
+        }
+
+        void removeHolder() {
+            holder = nullptr;
         }
 
         bool isUsable() const {
@@ -56,15 +57,9 @@ class Item {
             }
         }
 
-        void moveTo(const int& l, const int& c) const {
-            if (objeto) {
-                objeto->moveTo(l, c);
-            }
-        }
-
-        void centralizarItem(const int& alturaCaixa, const int& larguraCaixa, const int& posL, const int& posC) const {
-            int larguraObjeto = objeto->getSprite()->getLarguraMax();
-            int alturaObjeto = objeto->getSprite()->getAltura();
+        void centralizarItem(const int& alturaCaixa, const int& larguraCaixa, const int& posL, const int& posC) {
+            int larguraObjeto = this->getSprite()->getLarguraMax();
+            int alturaObjeto = this->getSprite()->getAltura();
 
             if (alturaObjeto > alturaCaixa) {
                 alturaObjeto = alturaCaixa;
@@ -77,7 +72,7 @@ class Item {
             int novaPosL = posL + (alturaCaixa - alturaObjeto) / 2;
             int novaPosC = posC + (larguraCaixa - larguraObjeto) / 2;
 
-            moveTo(novaPosL, novaPosC);
+            this->moveTo(novaPosL, novaPosC);
         }
 };
 
