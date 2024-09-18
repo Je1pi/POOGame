@@ -3,23 +3,42 @@
 #include "../Core/CaptureKey.hpp"
 
 void FaseUm::init() {
-    items.push_back(new Item(ObjetoDeJogo("Key1", Sprite("rsc/Sprites/Key.img"), 20, 20), 0, true));
-    items.push_back(new Item(ObjetoDeJogo("Key2", Sprite("rsc/Sprites/Key.img"), 20, 30), 0, true));
-    items.push_back(new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 20, 40), 0, true));
-
+    // Objetos de Jogo
     selectionItem = new ObjetoDeJogo("SelectionItem", Sprite("rsc/Sprites/HudItem.img"), 30, 5);
     selectionItem->desativarObj();
     objs.push_back(selectionItem);
 
-    Item* slingshot = new Item(ObjetoDeJogo("Slingshot", Sprite("rsc/Sprites/Slingshot.img"), 20, 50), 0, true);
-    slingshot->setUseFunction([this, slingshot](){
+    colisionDoor = new ObjetoDeJogo("colissionDoor", SpriteBuffer(8, 1), 12, 20);
+    objs.push_back(colisionDoor);
+    
+    door = new Door(ObjetoDeJogo("Door", Sprite("rsc/Sprites/Door.img"), 10, 20));
+    objs.push_back(door);
+
+    // Items
+    Item* key = new Item(ObjetoDeJogo("Key1", Sprite("rsc/Sprites/Key.img"), 20, 20), true, 1);
+    key->setUseFunction([this, key]() -> bool{
+        if (key->getHolder()->colideCom(*door)) {
+            door->setOpened(true);
+            return true;
+        }
+        return false;
+    });
+    items.push_back(key);
+
+    Item* slingshot = new Item(ObjetoDeJogo("Slingshot", Sprite("rsc/Sprites/Slingshot.img"), 20, 50));
+    slingshot->setUseFunction([this, slingshot]() -> bool{
         Bullet* bullet = new Bullet(slingshot->getHolder(), 10, 10, 1);
         bullets.push_back(bullet);
+        return true;
     });
     items.push_back(slingshot);
 
+    // Entidades
     player = new Player(ObjetoDeJogo("Player", Sprite("rsc/Sprites/Player.img"), 4, 6));
     entities.push_back(player);
+
+    Entity* enemy = new Entity(ObjetoDeJogo("Enemy", Sprite("rsc/Sprites/Player.img"), 10, 10), 100, 100, 100);
+    entities.push_back(enemy);
 }
 
 unsigned FaseUm::run(SpriteBuffer &screen) {
@@ -80,7 +99,10 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
             case 'l':
                 player->useItem();
                 break;
+        }
 
+        if (colissionObjs()) {
+            player->moveTo(posL, posC);
         }
 
         if (ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5') {
@@ -102,12 +124,38 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
 
         update();
         bulletUpdate(screen);
+        itemsUpdate();
+        entitiesUpdate();
         draw(screen);
         system("clear");
         show(screen);
     }
 
     return 0;
+}
+
+void FaseUm::entitiesUpdate() {
+    for (auto entity = entities.begin(); entity != entities.end(); ) {
+        if ((*entity)->getHealth() <= 0) {
+            Entity* deadEntity = *entity;
+            entity = entities.erase(entity);
+            delete deadEntity;
+        } else {
+            ++entity;
+        }
+    }
+}
+
+void FaseUm::itemsUpdate() {
+    for (auto item = items.begin(); item != items.end(); ) {
+        Item* i = *item;
+        if (i->getRemainingUses() == 0) {
+            item = items.erase(item);
+            delete i;
+        } else {
+            ++item;
+        }
+    }
 }
 
 void FaseUm::bulletUpdate(SpriteBuffer &screen) {
@@ -126,17 +174,28 @@ void FaseUm::bulletUpdate(SpriteBuffer &screen) {
     for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
         for (auto entity = entities.begin(); entity != entities.end(); ++entity) {
             if ((*entity)->colideCom(**bullet)) {
-                (*entity)->defend((*bullet)->getDamage());
+                (*bullet)->attack(*entity);
+
+                Bullet* hitBullet = *bullet;
+                bullet = bullets.erase(bullet);
+                delete hitBullet;
+                break;
             }
         }
     }
 }
 
 bool FaseUm::colissionObjs() const {
-    for (auto obj = objs.begin(); obj != objs.end(); ++obj)
+    for (auto obj = colisoes.begin(); obj != colisoes.end(); ++obj) {
         if (player->colideCom(**obj)) {
             return true;
         }
+    }
+
+    if (player->colideCom(*colisionDoor) && !door->isOpened()) {
+        return true;
+    }
+
     return false;
 }
 

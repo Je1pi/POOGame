@@ -19,7 +19,8 @@ class FaseUm : public Fase {
         list<Entity*> entities;
         list<Item*> items;
         list<Bullet*> bullets;
-        ObjetoDeJogo* selectionItem;
+        list<ObjetoDeJogo*> colisoes;
+        ObjetoDeJogo *selectionItem, *colisionDoor;
         Player* player;
         Door *door;
 
@@ -33,6 +34,8 @@ class FaseUm : public Fase {
         virtual unsigned run(SpriteBuffer &screen);
 
         void bulletUpdate(SpriteBuffer &screen);
+        void itemsUpdate();
+        void entitiesUpdate();
 
         bool colissionObjs() const;
         Item* getColissionItem() const;

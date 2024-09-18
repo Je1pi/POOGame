@@ -2,34 +2,22 @@
 #define ITEM_HPP
 
 #include <functional>
-#include "../ASCII_Engine/ObjetoDeJogo.hpp"
 #include "Entity.hpp"
+#include "../ASCII_Engine/ObjetoDeJogo.hpp"
 #include "../ASCII_Engine/Sprite.hpp"
 
 using namespace std;
 
 class Item : public ObjetoDeJogo {
     private:
+        Entity* holder;
         bool usable;
-        int damage;
-        Entity *holder;
-        function<void()> useFunction;
+        int qntUses;
+        function<bool()> useFunction;
 
     public:
-        Item(const ObjetoDeJogo& obj, const int& dmg = 0, const bool& usable = false) 
-            : ObjetoDeJogo(obj), damage(dmg), usable(usable), holder(nullptr) {}
-
-        void setDamage(int dmg) {
-            damage = dmg;
-        }
-
-        int getDamage() const {
-            return damage;
-        }
-
-        void setUsable(bool use) {
-            usable = use;
-        }
+        Item(const ObjetoDeJogo& obj, const bool& usable = true, const int& qntUses = -1) 
+            : ObjetoDeJogo(obj), usable(usable), qntUses(qntUses), holder(nullptr) {}
 
         void setHolder(Entity* entity) {
             holder = entity;
@@ -47,14 +35,29 @@ class Item : public ObjetoDeJogo {
             return usable;
         }
 
-        void setUseFunction(function<void()> func) {
+        void setUseFunction(function<bool()> func) {
             useFunction = func;
         }
 
         void use() {
             if (usable && useFunction) {
-                useFunction();
+                if (qntUses == -1 || qntUses > 0) {
+                    bool success = useFunction();
+                    if (success) {
+                        if (qntUses > 0) {
+                            qntUses--;
+                        }
+                    }
+                }
             }
+        }
+
+        bool hasInfiniteUses() const {
+            return qntUses == -1;
+        }
+
+        int getRemainingUses() const {
+            return qntUses;
         }
 
         void centralizarItem(const int& alturaCaixa, const int& larguraCaixa, const int& posL, const int& posC) {
