@@ -8,15 +8,15 @@ void FaseUm::init() {
     selectionItem->desativarObj();
     objs.push_back(selectionItem);
 
-    colisionDoor = new ObjetoDeJogo("colissionDoor", SpriteBuffer(8, 1), 12, 200);
+    colisionDoor = new ObjetoDeJogo("colissionDoor", SpriteBuffer(8, 1), 50, 200);
     objs.push_back(colisionDoor);
     
     door = new Door(ObjetoDeJogo("Door", Sprite("rsc/Sprites/Door.img"), 10, 200));
     objs.push_back(door);
 
     // Entidades
-    player = new Player(10, 10);
-    controller = new Controller(player);
+    player = new Player(44, 9);
+    controller = new Controller(player, map);
     
     Enemy* enemy1 = new Enemy(30, 80);
     controller->insertEntity(enemy1);
@@ -146,7 +146,7 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
                 break;
         }
 
-        if (colissionObjs()) {
+        if (colissionObjs() || map->colission(player)) {
             player->moveTo(posL, posC);
         }
 

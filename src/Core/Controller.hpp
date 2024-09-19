@@ -7,6 +7,7 @@
 #include "Entity.hpp"
 #include "Bullet.hpp"
 #include "Player.hpp"
+#include "Map.hpp"
 #include <chrono>
 #include <vector>
 #include <list>
@@ -23,6 +24,10 @@ class Controller {
         Entity* newEntity;
         list<Entity*> entities;
         Map* map;
+
+        bool isCollidingWithMap(Entity* entity) {
+            return map->colission(entity);
+        }
     
     public:
         Controller(Player* player, Map* map) : player(player), map(map) {
@@ -33,12 +38,12 @@ class Controller {
         }
 
         virtual ~Controller() {
-            for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
-                delete *bullet;
+            for (auto bullet : bullets) {
+                delete bullet;
             }
 
-            for (auto entity = entities.begin(); entity != entities.end(); ++entity) {
-                delete *entity;
+            for (auto entity : entities) {
+                delete entity;
             }
         }
 
@@ -190,7 +195,7 @@ class Controller {
                         break;
                 }
 
-                if (!checkCollisions()) {
+                if (!isCollidingWithMap(entity) && !checkCollisions()) {
                     return dir;
                 }
 
@@ -200,13 +205,12 @@ class Controller {
             return Directions::IDLE;
         }
 
-
         void update(SpriteBuffer &screen) {
             for (auto it = bullets.begin(); it != bullets.end(); ) {
                 Bullet* bullet = *it;
                 bool isMoving = bullet->moveUpdate(screen);
 
-                if (!isMoving) {
+                if (!isMoving || isCollidingWithMap(bullet)) {
                     it = bullets.erase(it);
                     delete bullet;
                 } else {
@@ -214,56 +218,85 @@ class Controller {
                 }
             }
 
-            for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
-                for (auto entity = entities.begin(); entity != entities.end(); ++entity) {
-                    if ((*bullet)->colideCom(**entity)) {
-                        (*bullet)->attack(*entity);
+            for (auto bullet = bullets.begin(); bullet != bullets.end(); ) {
+                Bullet* b = *bullet;
+                bool bulletRemoved = false;
 
-                        Bullet* hitBullet = *bullet;
-                        bullet = bullets.erase(bullet);
-                        delete hitBullet;
+                for (auto entity = entities.begin(); entity != entities.end(); ++entity) {
+                    if (b->colideCom(**entity)) {
+                        b->attack(*entity);
+                        bulletRemoved = true;
                         break;
                     }
                 }
+
+                if (bulletRemoved) {
+                    bullet = bullets.erase(bullet);
+                    delete b;
+                } else {
+                    ++bullet;
+                }
             }
 
-            for (auto entity = entities.begin(); entity != entities.end(); ) {
-                if ((*entity)->getHealth() <= 0 && (*entity) != player) {
-                    Entity* deadEntity = *entity;
-                    entity = entities.erase(entity);
-                    delete deadEntity;
+            for (auto entity1 = entities.begin(); entity1 != entities.end(); ) {
+                Entity* e1 = *entity1;
+
+                if (e1->getHealth() <= 0 && e1 != player) {
+                    entity1 = entities.erase(entity1);
+                    delete e1;
                 } else {
-                    Entity* e = *entity;
-                    if (e->hasBehavior()) {
-                        int posL = e->getPosL(), posC = e->getPosC();
+                    if (e1->hasBehavior() && player != nullptr) {
+                        int posL = e1->getPosL(), posC = e1->getPosC();
+                        behavior(e1, player);
 
-                        if (player != nullptr) {
-                            behavior(e, player);
+                        if (isCollidingWithMap(e1)) {
+                            Directions alternativeDirection = findAlternativeRoute(e1);
 
-                            if (checkCollisions()) {
-                                Directions alternativeDirection = findAlternativeRoute(e);
+                            switch (alternativeDirection) {
+                                case Directions::UP:
+                                    e1->moveUp(1);
+                                    break;
+                                case Directions::DOWN:
+                                    e1->moveDown(1);
+                                    break;
+                                case Directions::LEFT:
+                                    e1->moveLeft(1);
+                                    break;
+                                case Directions::RIGHT:
+                                    e1->moveRight(1);
+                                    break;
+                                default:
+                                    e1->moveTo(posL, posC);
+                                    break;
+                            }
+                        }
+
+                        for (auto entity2 = entities.begin(); entity2 != entities.end(); ) {
+                            if (*entity2 != e1 && e1->colideCom(**entity2)) {
+                                Directions alternativeDirection = findAlternativeRoute(e1);
 
                                 switch (alternativeDirection) {
                                     case Directions::UP:
-                                        e->moveUp(1);
+                                        e1->moveUp(1);
                                         break;
                                     case Directions::DOWN:
-                                        e->moveDown(1);
+                                        e1->moveDown(1);
                                         break;
                                     case Directions::LEFT:
-                                        e->moveLeft(1);
+                                        e1->moveLeft(1);
                                         break;
                                     case Directions::RIGHT:
-                                        e->moveRight(1);
+                                        e1->moveRight(1);
                                         break;
                                     default:
-                                        e->moveTo(posL, posC);
+                                        e1->moveTo(posL, posC);
                                         break;
                                 }
                             }
+                            ++entity2;
                         }
                     }
-                    ++entity;
+                    ++entity1;
                 }
             }
         }
@@ -275,7 +308,7 @@ class Controller {
             }
 
             for (auto entity = entities.begin(); entity != entities.end(); ++entity) {
-            Entity* e = *entity;
+                Entity* e = *entity;
                 e->draw(screen, e->getPosL(), e->getPosC());
             }
         }

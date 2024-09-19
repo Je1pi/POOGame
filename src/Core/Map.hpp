@@ -9,16 +9,19 @@
 
 using namespace std;
 
-class Map : ObjetoDeJogo {
+class Map : public ObjetoDeJogo {
     private:
         vector<vector<int>> mapMatrix;
         string path;
         int rows, cols;
+        int offsetL, offsetC;
 
     public:
-        Map(const string& path, const int& posL, const int& posC) : path(path), rows(0), cols(0), ObjetoDeJogo("Map", Sprite(path), posL, posC) {
+        Map(const string& path, const int& posL, const int& posC, const int& offsetL = 0, const int& offsetC = 0) 
+            : path(path), rows(0), cols(0), offsetL(offsetL), offsetC(offsetC), ObjetoDeJogo("Map", Sprite(path), posL, posC) {
             genMap();
         }
+
         ~Map() {}
 
         void genMap() {
@@ -48,8 +51,8 @@ class Map : ObjetoDeJogo {
         }
 
         bool colission(Entity* entity) const {
-            int entityPosL = entity->getPosL();
-            int entityPosC = entity->getPosC();
+            int entityPosL = entity->getPosL() - offsetL;
+            int entityPosC = entity->getPosC() - offsetC;
             int entityHeight = entity->getSprite()->getAltura();
             int entityWidth = entity->getSprite()->getLarguraMax();
 
