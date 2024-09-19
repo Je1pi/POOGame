@@ -8,10 +8,10 @@ void FaseUm::init() {
     selectionItem->desativarObj();
     objs.push_back(selectionItem);
 
-    colisionDoor = new ObjetoDeJogo("colissionDoor", SpriteBuffer(8, 1), 12, 20);
+    colisionDoor = new ObjetoDeJogo("colissionDoor", SpriteBuffer(8, 1), 12, 200);
     objs.push_back(colisionDoor);
     
-    door = new Door(ObjetoDeJogo("Door", Sprite("rsc/Sprites/Door.img"), 10, 20));
+    door = new Door(ObjetoDeJogo("Door", Sprite("rsc/Sprites/Door.img"), 10, 200));
     objs.push_back(door);
 
     // Items
@@ -70,8 +70,14 @@ void FaseUm::init() {
     items.push_back(slingshot);
 
     // Entidades
-    Enemy* enemy = new Enemy(this, 30, 80);
-    entities.push_back(enemy);
+    Enemy* enemy1 = new Enemy(bullets, 30, 80);
+    entities.push_back(enemy1);
+
+    Enemy* enemy2 = new Enemy(bullets, 30, 100);
+    entities.push_back(enemy2);
+
+    Enemy* enemy3 = new Enemy(bullets, 30, 120);
+    entities.push_back(enemy3);
     
     player = new Player(10, 10);
     entities.push_back(player);

@@ -15,7 +15,7 @@ class Player : public Entity {
 
     public:
         Player(const int& posL, const int& posC) 
-            : Entity(ObjetoDeJogo("Player", Sprite("rsc/Sprites/Player.img"), posL, posC), 200, 10, 250), cooldownDurationMs(500) {
+            : Entity(ObjetoDeJogo("Player", Sprite("rsc/Sprites/Player.img"), posL, posC), 200, 10, 250), cooldownDurationMs(250) {
             lastUseTime = std::chrono::steady_clock::now() - std::chrono::milliseconds(cooldownDurationMs); 
         }
         

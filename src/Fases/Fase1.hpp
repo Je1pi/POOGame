@@ -35,8 +35,6 @@ class FaseUm : public Fase {
         virtual void init();
         virtual unsigned run(SpriteBuffer &screen);
 
-        void addBullet(Bullet* bullet) { bullets.push_back(bullet); }
-
         void bulletUpdate(SpriteBuffer &screen);
         void itemsUpdate();
         void entitiesUpdate();

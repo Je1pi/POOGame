@@ -4,6 +4,9 @@
 #include "../ASCII_Engine/ObjetoDeJogo.hpp"
 #include "Directions.hpp"
 #include <random>
+#include <list>
+
+using namespace std;
 
 class Entity : public ObjetoDeJogo {
     protected:
@@ -24,11 +27,8 @@ class Entity : public ObjetoDeJogo {
 
         virtual void defend(int damage) {
             double defenseFactor = 0.1 * defense;
-
             int mitigatedDamage = (damage - defenseFactor);
-
             health -= mitigatedDamage;
-
             if (health < 0) {
                 health = 0;
             }
@@ -57,7 +57,6 @@ class Entity : public ObjetoDeJogo {
             }
 
             int defenseLoss = (defense * (defenseLossPercentage / 100.0));
-
             defense -= defenseLoss;
         }
 
