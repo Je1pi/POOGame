@@ -2,14 +2,14 @@
 #define INVENTORY_HPP
 
 #include "Item.hpp"
-#include "Entity.hpp"
+#include "Player.hpp"
 #include "../ASCII_Engine/Sprite.hpp"
 #include "../ASCII_Engine/ObjetoDeJogo.hpp"
 
 class Inventory {
     private:
         int selectedItemIndex;
-        static const int MAX_ITEMS = 5;
+        static const int MAX_ITEMS = 6;
         Item* items[MAX_ITEMS];
 
     public:
@@ -19,14 +19,13 @@ class Inventory {
             }
         }
 
-        void addItem(Item* item, Entity *entity) {
+        void addItem(Item* item, Player* entity) {
             for (int i = 0; i < MAX_ITEMS; ++i) {
                 if (items[i] == nullptr) {
                     items[i] = item;
 
                     item->setHolder(entity);
-
-                    item->centralizarItem(4, 9, 31, 5 + i * 13);
+                    item->centralizarItem(17, 31, 56, 7 + i * 38);
 
                     return;
                 }

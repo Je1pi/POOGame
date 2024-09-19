@@ -16,6 +16,8 @@ class Entity : public ObjetoDeJogo {
 
         virtual ~Entity() {}
 
+        virtual void behavior(Entity* entity) {}
+
         virtual void attack(Entity* entity) {
             entity->defend(damage);
         }
@@ -73,6 +75,18 @@ class Entity : public ObjetoDeJogo {
 
         int getDamage() const {
             return damage;
+        }
+
+        int getDefense() const {
+            return defense;
+        }
+
+        int getCenterL() const {
+            return this->getPosL() + (this->getSprite()->getAltura() / 2);
+        }
+
+        int getCenterC() const {
+            return this->getPosC() + (this->getSprite()->getLarguraMax() / 2);
         }
 };
 

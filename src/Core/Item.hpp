@@ -2,15 +2,15 @@
 #define ITEM_HPP
 
 #include <functional>
-#include "Entity.hpp"
 #include "../ASCII_Engine/ObjetoDeJogo.hpp"
-#include "../ASCII_Engine/Sprite.hpp"
 
 using namespace std;
 
+class Player;
+
 class Item : public ObjetoDeJogo {
     private:
-        Entity* holder;
+        Player* holder;
         bool usable;
         int qntUses;
         function<bool()> useFunction;
@@ -19,11 +19,13 @@ class Item : public ObjetoDeJogo {
         Item(const ObjetoDeJogo& obj, const bool& usable = true, const int& qntUses = -1) 
             : ObjetoDeJogo(obj), usable(usable), qntUses(qntUses), holder(nullptr) {}
 
-        void setHolder(Entity* entity) {
-            holder = entity;
+        virtual ~Item() {}
+
+        void setHolder(Player* player) {
+            holder = player;
         }
 
-        Entity* getHolder() const {
+        Player* getHolder() const {
             return holder;
         }
 

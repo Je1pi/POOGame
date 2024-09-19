@@ -14,8 +14,8 @@ class Player : public Entity {
         int cooldownDurationMs;
 
     public:
-        Player(const ObjetoDeJogo &obj, int life = 100, int damage = 10, int defense = 5) 
-            : Entity(obj, life, damage, defense), cooldownDurationMs(1000) {
+        Player(const int& posL, const int& posC) 
+            : Entity(ObjetoDeJogo("Player", Sprite("rsc/Sprites/Player.img"), posL, posC), 200, 10, 250), cooldownDurationMs(500) {
             lastUseTime = std::chrono::steady_clock::now() - std::chrono::milliseconds(cooldownDurationMs); 
         }
         
@@ -28,7 +28,7 @@ class Player : public Entity {
         }
 
         void removeItem() {
-            inventory.removeItem(this->getPosL(), this->getPosC());
+            inventory.removeItem(this->getCenterL(), this->getCenterC());
         }
 
         void selectItem(int index) {

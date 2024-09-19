@@ -4,7 +4,7 @@
 
 void FaseUm::init() {
     // Objetos de Jogo
-    selectionItem = new ObjetoDeJogo("SelectionItem", Sprite("rsc/Sprites/HudItem.img"), 30, 5);
+    selectionItem = new ObjetoDeJogo("SelectionItem", Sprite("rsc/Sprites/SelectedItem.img"), 30, 5);
     selectionItem->desativarObj();
     objs.push_back(selectionItem);
 
@@ -15,9 +15,9 @@ void FaseUm::init() {
     objs.push_back(door);
 
     // Items
-    Item* key = new Item(ObjetoDeJogo("Key1", Sprite("rsc/Sprites/Key.img"), 20, 20), true, 1);
+    Item* key = new Item(ObjetoDeJogo("Key", Sprite("rsc/Sprites/Key.img"), 20, 20), true, 1);
     key->setUseFunction([this, key]() -> bool{
-        if (key->getHolder()->colideCom(*door)) {
+        if (key->getHolder()->colideCom(*door) && !door->isOpened()) {
             door->setOpened(true);
             return true;
         }
@@ -25,20 +25,56 @@ void FaseUm::init() {
     });
     items.push_back(key);
 
+    Item* rune1 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 40, 30), true, 1);
+    rune1->setUseFunction([this, rune1]() -> bool{
+        if (rune1->getHolder()->colideCom(*door) && !door->isOpened()) {
+            door->addRune();
+            if (door->checkRunes())
+                door->setOpened(true);
+            return true;
+        }
+        return false;
+    });
+    items.push_back(rune1);
+
+    Item* rune2 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 40, 40), true, 1);
+    rune2->setUseFunction([this, rune2]() -> bool{
+        if (rune2->getHolder()->colideCom(*door) && !door->isOpened()) {
+            door->addRune();
+            if (door->checkRunes())
+                door->setOpened(true);
+            return true;
+        }
+        return false;
+    });
+    items.push_back(rune2);
+
+    Item* rune3 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 40, 50), true, 1);
+    rune3->setUseFunction([this, rune3]() -> bool{
+        if (rune3->getHolder()->colideCom(*door) && !door->isOpened()) {
+            door->addRune();
+            if (door->checkRunes())
+                door->setOpened(true);
+            return true;
+        }
+        return false;
+    });
+    items.push_back(rune3);
+
     Item* slingshot = new Item(ObjetoDeJogo("Slingshot", Sprite("rsc/Sprites/Slingshot.img"), 20, 50));
-    slingshot->setUseFunction([this, slingshot]() -> bool{
-        Bullet* bullet = new Bullet(slingshot->getHolder(), 10, 10, 1);
+    slingshot->setUseFunction([this, slingshot]() -> bool {
+        Bullet* bullet = new Bullet(slingshot->getHolder(), 10, 20, 1);
         bullets.push_back(bullet);
         return true;
     });
     items.push_back(slingshot);
 
     // Entidades
-    player = new Player(ObjetoDeJogo("Player", Sprite("rsc/Sprites/Player.img"), 4, 6));
-    entities.push_back(player);
-
-    Entity* enemy = new Entity(ObjetoDeJogo("Enemy", Sprite("rsc/Sprites/Player.img"), 10, 10), 100, 100, 100);
+    Enemy* enemy = new Enemy(this, 30, 80);
     entities.push_back(enemy);
+    
+    player = new Player(10, 10);
+    entities.push_back(player);
 }
 
 unsigned FaseUm::run(SpriteBuffer &screen) {
@@ -65,7 +101,7 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
                 break;
 
             case 's':
-                if (posL < screen.getAltura() - player->getSprite()->getAltura() - 9) {
+                if (posL < screen.getAltura() - player->getSprite()->getAltura() - 19) {
                     player->moveDown(1);
                     player->setDirection(Directions::DOWN);
                 }
@@ -79,7 +115,7 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
                 break;
 
             case 'd':
-                if (posC < screen.getLargura(0) - player->getSprite()->getLarguraMax() - 3) {
+                if (posC < screen.getLargura(0) - player->getSprite()->getLarguraMax() - 4) {
                     player->moveRight(1);
                     player->setDirection(Directions::RIGHT);
                 }
@@ -105,7 +141,7 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
             player->moveTo(posL, posC);
         }
 
-        if (ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5') {
+        if (ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5' || ch == '6') {
             int index = ch - '1';
 
             if (player->isSelectedItem(index)) {
@@ -113,7 +149,7 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
                 selectionItem->desativarObj();
             } else {
                 player->selectItem(index);
-                selectionItem->moveTo(30, 5 + index * 13);
+                selectionItem->moveTo(56, 7 + index * 38);
                 selectionItem->ativarObj();
             }
         }
@@ -126,12 +162,20 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
         bulletUpdate(screen);
         itemsUpdate();
         entitiesUpdate();
+        statsUpdate();
         draw(screen);
         system("clear");
         show(screen);
     }
 
     return 0;
+}
+
+void FaseUm::statsUpdate() {
+    int life = player->getHealth();
+    int defense = player->getDefense();
+
+
 }
 
 void FaseUm::entitiesUpdate() {
@@ -141,6 +185,9 @@ void FaseUm::entitiesUpdate() {
             entity = entities.erase(entity);
             delete deadEntity;
         } else {
+            if ((*entity)->getName() == "Enemy") {
+                (*entity)->behavior(player);
+            }
             ++entity;
         }
     }
@@ -151,6 +198,8 @@ void FaseUm::itemsUpdate() {
         Item* i = *item;
         if (i->getRemainingUses() == 0) {
             item = items.erase(item);
+            i->desativarObj();
+            i->getHolder()->removeItem();
             delete i;
         } else {
             ++item;
@@ -209,6 +258,7 @@ Item* FaseUm::getColissionItem() const {
 
 void FaseUm::draw(SpriteBase &screen, int x, int y) {
     background->draw(screen, 0, 0);
+    map->draw(screen, 4, 6);
 
     for (auto bullet : bullets) {
         bullet->draw(screen, bullet->getPosL(), bullet->getPosC());

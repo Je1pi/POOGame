@@ -11,6 +11,7 @@
 #include "../Core/Door.hpp"
 #include "../Core/Bullet.hpp"
 #include "../Core/Inventory.hpp"
+#include "../Core/Enemy.hpp"
 
 using namespace std;
 
@@ -20,22 +21,26 @@ class FaseUm : public Fase {
         list<Item*> items;
         list<Bullet*> bullets;
         list<ObjetoDeJogo*> colisoes;
+        SpriteBase* map;
         ObjetoDeJogo *selectionItem, *colisionDoor;
         Player* player;
         Door *door;
 
     public:
-        FaseUm(string name, const SpriteBase &bkg) : Fase(name, bkg) {}
-        FaseUm(string name, const SpriteAnimado &bkg) : Fase(name, bkg) {}
+        FaseUm(string name, const SpriteBase &bkg, const SpriteBase &map) : Fase(name, bkg), map(map.copia()) {}
+        FaseUm(string name, const SpriteAnimado &bkg, const SpriteAnimado &map) : Fase(name, bkg), map(map.copia()) {}
 
         virtual ~FaseUm() {}
 
         virtual void init();
         virtual unsigned run(SpriteBuffer &screen);
 
+        void addBullet(Bullet* bullet) { bullets.push_back(bullet); }
+
         void bulletUpdate(SpriteBuffer &screen);
         void itemsUpdate();
         void entitiesUpdate();
+        void statsUpdate();
 
         bool colissionObjs() const;
         Item* getColissionItem() const;

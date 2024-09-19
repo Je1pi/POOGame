@@ -9,22 +9,27 @@ using namespace std;
 class Door : public ObjetoDeJogo {
     private:
         bool opened = false;
-        Item* runes[3];
+        int runes;
     
     public:
-        Door(ObjetoDeJogo obj) : ObjetoDeJogo(obj) {
-            for (int i = 0; i < 3; i++) {
-                runes[i] = nullptr;
+        Door (ObjetoDeJogo obj) : ObjetoDeJogo(obj), runes(0) {}
+
+        virtual ~Door () {}
+
+        bool isOpened () const { return opened; }
+
+        void setOpened (bool value) { opened = value; }
+
+        void addRune () {
+            if (runes < 3) {
+                runes++;
             }
         }
 
-        virtual ~Door() {}
-
-        bool isOpened() const { return opened; }
-
-        void setOpened(bool value) { opened = value; }
-
-        
+        bool checkRunes () {
+            return runes == 3;
+            return true;
+        }
 };
 
 #endif // DOOR_HPP

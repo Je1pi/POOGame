@@ -13,9 +13,9 @@ public:
 	
 	static void run()
 	{
-		SpriteBuffer buffer(151,37);
+		SpriteBuffer buffer(338,74);
 
-		FaseUm fase1("Fase 1", Sprite("rsc/Fases/Hud.img"));
+		FaseUm fase1("Fase 1", Sprite("rsc/Fases/Hud.img"), Sprite("rsc/Fases/Map1.img"));
 
 		fase1.init();
 		fase1.run(buffer);
