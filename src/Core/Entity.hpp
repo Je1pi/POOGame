@@ -10,16 +10,17 @@ using namespace std;
 
 class Entity : public ObjetoDeJogo {
     protected:
-        int health, damage, defense;
+        int health, damage, defense, rangeVision, rangeShot;
+        bool behavior;
         Directions direction;
 
     public:
-        Entity(const ObjetoDeJogo &obj, const int& life, const int& damage, const int& defense) 
-            : ObjetoDeJogo(obj), health(life), damage(damage), defense(defense) {}
+        Entity(const ObjetoDeJogo &obj, const int& life, const int& damage, const int& defense, const bool& behavior = false, const int& rangeVision = 0, const int& rangeShot = 0) 
+            : ObjetoDeJogo(obj), health(life), damage(damage), 
+            defense(defense), behavior(behavior), rangeVision(rangeVision),
+            rangeShot(rangeShot) {}
 
         virtual ~Entity() {}
-
-        virtual void behavior(Entity* entity) {}
 
         virtual void attack(Entity* entity) {
             entity->defend(damage);
@@ -27,8 +28,14 @@ class Entity : public ObjetoDeJogo {
 
         virtual void defend(int damage) {
             double defenseFactor = 0.1 * defense;
-            int mitigatedDamage = (damage - defenseFactor);
+            int mitigatedDamage = damage - defenseFactor;
+
+            if (mitigatedDamage < 0) {
+                mitigatedDamage = 0;
+            }
+
             health -= mitigatedDamage;
+
             if (health < 0) {
                 health = 0;
             }
@@ -86,6 +93,18 @@ class Entity : public ObjetoDeJogo {
 
         int getCenterC() const {
             return this->getPosC() + (this->getSprite()->getLarguraMax() / 2);
+        }
+
+        int getRangeVision() const {
+            return rangeVision;
+        }
+
+        int getRangeShot() const {
+            return rangeShot;
+        }
+
+        bool hasBehavior() const {
+            return behavior;
         }
 };
 

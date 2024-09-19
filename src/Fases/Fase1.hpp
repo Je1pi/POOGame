@@ -1,44 +1,44 @@
 #ifndef FASEUM_HPP
 #define FASEUM_HPP
 
-#include <string>
-#include <list>
-#include <vector>
 #include "../ASCII_Engine/Fase.hpp"
+#include "../Core/Controller.hpp"
+#include "../Core/Inventory.hpp"
 #include "../Core/Player.hpp"
 #include "../Core/Entity.hpp"
+#include "../Core/Bullet.hpp"
+#include "../Core/Enemy.hpp"
 #include "../Core/Item.hpp"
 #include "../Core/Door.hpp"
-#include "../Core/Bullet.hpp"
-#include "../Core/Inventory.hpp"
-#include "../Core/Enemy.hpp"
+#include "../Core/Bars.hpp"
+#include "../Core/Map.hpp"
+#include <string>
+#include <vector>
+#include <list>
 
 using namespace std;
 
 class FaseUm : public Fase {
     private:
-        list<Entity*> entities;
-        list<Item*> items;
-        list<Bullet*> bullets;
-        list<ObjetoDeJogo*> colisoes;
-        SpriteBase* map;
         ObjetoDeJogo *selectionItem, *colisionDoor;
+        Bars *healthBar, *defenseBar;
+        list<ObjetoDeJogo*> colisoes;
+        Controller* controller;
+        list<Item*> items;
         Player* player;
         Door *door;
+        Map* map;
 
     public:
-        FaseUm(string name, const SpriteBase &bkg, const SpriteBase &map) : Fase(name, bkg), map(map.copia()) {}
-        FaseUm(string name, const SpriteAnimado &bkg, const SpriteAnimado &map) : Fase(name, bkg), map(map.copia()) {}
+        FaseUm(string name, const SpriteBase &bkg, Map* map) : Fase(name, bkg), map(map) {}
+        FaseUm(string name, const SpriteAnimado &bkg, Map* map) : Fase(name, bkg), map(map) {}
 
         virtual ~FaseUm() {}
 
         virtual void init();
         virtual unsigned run(SpriteBuffer &screen);
 
-        void bulletUpdate(SpriteBuffer &screen);
-        void itemsUpdate();
-        void entitiesUpdate();
-        void statsUpdate();
+        virtual void update(SpriteBuffer &screen);
 
         bool colissionObjs() const;
         Item* getColissionItem() const;

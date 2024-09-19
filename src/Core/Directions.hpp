@@ -5,7 +5,8 @@ enum class Directions {
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
+    IDLE
 };
 
 #endif // DIRECTIONS_HPP

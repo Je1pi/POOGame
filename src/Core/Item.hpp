@@ -79,6 +79,16 @@ class Item : public ObjetoDeJogo {
 
             this->moveTo(novaPosL, novaPosC);
         }
+
+        void safeUse() {
+            if (holder != nullptr) {
+                use();
+            }
+        }
+
+        void deleteHolder() {
+            holder = nullptr;
+        }
 };
 
 #endif // ITEM_HPP

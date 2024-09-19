@@ -14,6 +14,19 @@ void FaseUm::init() {
     door = new Door(ObjetoDeJogo("Door", Sprite("rsc/Sprites/Door.img"), 10, 200));
     objs.push_back(door);
 
+    // Entidades
+    player = new Player(10, 10);
+    controller = new Controller(player);
+    
+    Enemy* enemy1 = new Enemy(30, 80);
+    controller->insertEntity(enemy1);
+
+    Enemy* enemy2 = new Enemy(30, 100);
+    controller->insertEntity(enemy2);
+
+    Enemy* enemy3 = new Enemy(30, 120);
+    controller->insertEntity(enemy3);
+
     // Items
     Item* key = new Item(ObjetoDeJogo("Key", Sprite("rsc/Sprites/Key.img"), 20, 20), true, 1);
     key->setUseFunction([this, key]() -> bool{
@@ -63,24 +76,14 @@ void FaseUm::init() {
 
     Item* slingshot = new Item(ObjetoDeJogo("Slingshot", Sprite("rsc/Sprites/Slingshot.img"), 20, 50));
     slingshot->setUseFunction([this, slingshot]() -> bool {
-        Bullet* bullet = new Bullet(slingshot->getHolder(), 10, 20, 1);
-        bullets.push_back(bullet);
+        controller->createBullet(slingshot->getHolder(), 10, 20, 1);
         return true;
     });
     items.push_back(slingshot);
 
-    // Entidades
-    Enemy* enemy1 = new Enemy(bullets, 30, 80);
-    entities.push_back(enemy1);
-
-    Enemy* enemy2 = new Enemy(bullets, 30, 100);
-    entities.push_back(enemy2);
-
-    Enemy* enemy3 = new Enemy(bullets, 30, 120);
-    entities.push_back(enemy3);
-    
-    player = new Player(10, 10);
-    entities.push_back(player);
+    // Barras
+    healthBar = new Bars(60, 267, player->getHealth());
+    defenseBar = new Bars(68, 267, player->getDefense());
 }
 
 unsigned FaseUm::run(SpriteBuffer &screen) {
@@ -160,46 +163,27 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
             }
         }
 
-        if (player->getHealth() <= 0) {
-            return 0;
-        }
 
-        update();
-        bulletUpdate(screen);
-        itemsUpdate();
-        entitiesUpdate();
-        statsUpdate();
+        update(screen);
         draw(screen);
         system("clear");
         show(screen);
+
+        if (player->getHealth() <= 0) {
+            return Fase::GAME_OVER;
+        }
     }
 
     return 0;
 }
 
-void FaseUm::statsUpdate() {
-    int life = player->getHealth();
-    int defense = player->getDefense();
+void FaseUm::update(SpriteBuffer &screen) {
+    controller->update(screen);
 
-
-}
-
-void FaseUm::entitiesUpdate() {
-    for (auto entity = entities.begin(); entity != entities.end(); ) {
-        if ((*entity)->getHealth() <= 0) {
-            Entity* deadEntity = *entity;
-            entity = entities.erase(entity);
-            delete deadEntity;
-        } else {
-            if ((*entity)->getName() == "Enemy") {
-                (*entity)->behavior(player);
-            }
-            ++entity;
-        }
+    for (auto obj = objs.begin(); obj != objs.end(); ++obj) {
+        (*obj)->update();
     }
-}
 
-void FaseUm::itemsUpdate() {
     for (auto item = items.begin(); item != items.end(); ) {
         Item* i = *item;
         if (i->getRemainingUses() == 0) {
@@ -211,33 +195,9 @@ void FaseUm::itemsUpdate() {
             ++item;
         }
     }
-}
 
-void FaseUm::bulletUpdate(SpriteBuffer &screen) {
-    for (auto it = bullets.begin(); it != bullets.end(); ) {
-        Bullet* bullet = *it;
-        bool isMoving = bullet->moveUpdate(screen);
-
-        if (!isMoving) {
-            it = bullets.erase(it);
-            delete bullet;
-        } else {
-            ++it;
-        }
-    }
-
-    for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet) {
-        for (auto entity = entities.begin(); entity != entities.end(); ++entity) {
-            if ((*entity)->colideCom(**bullet)) {
-                (*bullet)->attack(*entity);
-
-                Bullet* hitBullet = *bullet;
-                bullet = bullets.erase(bullet);
-                delete hitBullet;
-                break;
-            }
-        }
-    }
+    healthBar->update(player->getHealth());
+    defenseBar->update(player->getDefense());
 }
 
 bool FaseUm::colissionObjs() const {
@@ -264,11 +224,7 @@ Item* FaseUm::getColissionItem() const {
 
 void FaseUm::draw(SpriteBase &screen, int x, int y) {
     background->draw(screen, 0, 0);
-    map->draw(screen, 4, 6);
-
-    for (auto bullet : bullets) {
-        bullet->draw(screen, bullet->getPosL(), bullet->getPosC());
-    }
+    map->draw(screen);
 
     for (auto obj : objs) {
         obj->draw(screen, obj->getPosL(), obj->getPosC());
@@ -278,7 +234,8 @@ void FaseUm::draw(SpriteBase &screen, int x, int y) {
         item->draw(screen, item->getPosL(), item->getPosC());
     }
 
-    for (auto entity : entities) {
-        entity->draw(screen, entity->getPosL(), entity->getPosC());
-    }
+    healthBar->draw(screen);
+    defenseBar->draw(screen);
+    controller->draw(screen);
+    player->draw(screen, player->getPosL(), player->getPosC());
 }
