@@ -69,6 +69,14 @@ class Map : public ObjetoDeJogo {
             return false;
         }
 
+        int getMaxL() const {
+            return rows;
+        }
+
+        int getMaxC() const {
+            return cols;
+        }
+
         void draw(SpriteBase &screen) {
             ObjetoDeJogo::draw(screen, getPosL(), getPosC());
         }

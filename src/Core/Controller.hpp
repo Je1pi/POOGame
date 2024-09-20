@@ -24,13 +24,14 @@ class Controller {
         Entity* newEntity;
         list<Entity*> entities;
         Map* map;
+        bool behindWall;
 
         bool isCollidingWithMap(Entity* entity) {
             return map->colission(entity);
         }
     
     public:
-        Controller(Player* player, Map* map) : player(player), map(map) {
+        Controller(Player* player, Map* map, const bool& behindWall = false) : player(player), map(map), behindWall(behindWall) {
             cooldownDurationMs = 300;
             newBullet = nullptr;
             newEntity = nullptr;
@@ -106,6 +107,54 @@ class Controller {
             return false;
         }
 
+        bool hasLineOfSight(Entity* entity, Entity* target, Map* map) {
+            if (behindWall) {
+                ObjetoDeJogo tempObj("LineOfSightChecker", SpriteBuffer(1, 1), entity->getPosL(), entity->getPosC());
+                Entity* lineChecker = new Entity(tempObj, 1, 0, 0);
+
+                int deltaL = target->getCenterL() - entity->getCenterL();
+                int deltaC = target->getCenterC() - entity->getCenterC();
+                
+                int steps = max(abs(deltaL), abs(deltaC));
+                if (steps == 0) {
+                    delete lineChecker;
+                    return true;
+                }
+
+                int stepL = (deltaL * 1000) / steps;
+                int stepC = (deltaC * 1000) / steps;
+
+                int currentL = entity->getCenterL() * 1000;
+                int currentC = entity->getCenterC() * 1000;
+
+                for (int i = 1; i <= steps; ++i) {
+                    currentL += stepL;
+                    currentC += stepC;
+
+                    int newL = currentL / 1000;
+                    int newC = currentC / 1000;
+
+                    if (newL < 0 || newC < 0 || newL >= map->getMaxL() || newC >= map->getMaxC()) {
+                        delete lineChecker;
+                        return false;
+                    }
+
+                    lineChecker->moveTo(newL, newC);
+
+                    if (map->colission(lineChecker)) {
+                        delete lineChecker;
+                        return false;
+                    }
+                }
+
+                delete lineChecker;
+                return true;
+                
+            } else {
+                return true;
+            }
+        }
+
         void behavior(Entity* entity, Entity* alvo) {
             int rangeVisionA = entity->getRangeVision();
             int rangeVisionL = entity->getRangeVision() * 2;
@@ -119,7 +168,7 @@ class Controller {
             bool isAtVisionEdge = distanceL == rangeVisionA && distanceC == rangeVisionL;
             bool isWithinShotRange = distanceL <= rangeShotA && distanceC <= rangeShotL;
 
-            if (isWithinVision) {
+            if (isWithinVision && hasLineOfSight(entity, alvo, map)) {
                 if (isAtVisionEdge) {
                     handleEdgeBehavior(entity, alvo);
                 } else if (isWithinShotRange) {

@@ -27,6 +27,13 @@ class Player : public Entity {
             }
         }
 
+        void addHealth(int health) {
+            this->health += health;
+            if (this->health > 200) {
+                this->health = 200;
+            }
+        }
+
         void removeItem() {
             inventory.removeItem(this->getCenterL(), this->getCenterC());
         }

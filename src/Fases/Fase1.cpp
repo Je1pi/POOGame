@@ -8,78 +8,87 @@ void FaseUm::init() {
     selectionItem->desativarObj();
     objs.push_back(selectionItem);
 
-    colisionDoor = new ObjetoDeJogo("colissionDoor", SpriteBuffer(8, 1), 50, 200);
-    objs.push_back(colisionDoor);
+    checkKeyDoor = new ObjetoDeJogo("colissionDoor", SpriteBuffer(5, 8), 28, 157);
+    objs.push_back(checkKeyDoor);
     
-    door = new Door(ObjetoDeJogo("Door", Sprite("rsc/Sprites/Door.img"), 10, 200));
-    objs.push_back(door);
+    door1 = new Door(ObjetoDeJogo("Door", SpriteAnimado("rsc/SpritesAnimados/Door.anm"), 27, 159));
+    objs.push_back(door1);
+
+    door2 = new Door(ObjetoDeJogo("Door", SpriteAnimado("rsc/SpritesAnimados/Door.anm"), 3, 298));
+    objs.push_back(door2);
 
     // Entidades
     player = new Player(44, 9);
     controller = new Controller(player, map);
     
-    Enemy* enemy1 = new Enemy(30, 80);
+    Enemy* enemy1 = new Enemy(44, 50);
     controller->insertEntity(enemy1);
 
-    Enemy* enemy2 = new Enemy(30, 100);
+    Enemy* enemy2 = new Enemy(24, 55);
     controller->insertEntity(enemy2);
 
-    Enemy* enemy3 = new Enemy(30, 120);
+    Enemy* enemy3 = new Enemy(45, 100);
     controller->insertEntity(enemy3);
 
+    Enemy* enemy4 = new Enemy(10, 157);
+    controller->insertEntity(enemy4);
+
+    Enemy* enemy5 = new Enemy(43, 174);
+    controller->insertEntity(enemy5);
+
+    Enemy* enemy6 = new Enemy(26, 235);
+    controller->insertEntity(enemy6);
+
+    Enemy* enemy7 = new Enemy(9, 201);
+    controller->insertEntity(enemy7);
+
+    Enemy* enemy8 = new Enemy(44, 242);
+    controller->insertEntity(enemy8);
+
     // Items
-    Item* key = new Item(ObjetoDeJogo("Key", Sprite("rsc/Sprites/Key.img"), 20, 20), true, 1);
+    Item* key = new Item(ObjetoDeJogo("Key", Sprite("rsc/Sprites/Key.img"), 21, 77), true, 1);
     key->setUseFunction([this, key]() -> bool{
-        if (key->getHolder()->colideCom(*door) && !door->isOpened()) {
-            door->setOpened(true);
+        if (key->getHolder()->colideCom(*checkKeyDoor) && !door1->isOpened()) {
+            door1->setOpened(true);
+            door1->update();
             return true;
         }
         return false;
     });
     items.push_back(key);
 
-    Item* rune1 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 40, 30), true, 1);
-    rune1->setUseFunction([this, rune1]() -> bool{
-        if (rune1->getHolder()->colideCom(*door) && !door->isOpened()) {
-            door->addRune();
-            if (door->checkRunes())
-                door->setOpened(true);
-            return true;
-        }
-        return false;
+    Item* potion = new Item(ObjetoDeJogo("Potion", Sprite("rsc/Sprites/Potion.img"), 5, 84), true, 1);
+    potion->setUseFunction([this, potion]() -> bool{
+        player->addHealth(20);
+        return true;
     });
+    items.push_back(potion);
+
+    Item* rune1 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 46, 112), true, 1);
     items.push_back(rune1);
 
-    Item* rune2 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 40, 40), true, 1);
-    rune2->setUseFunction([this, rune2]() -> bool{
-        if (rune2->getHolder()->colideCom(*door) && !door->isOpened()) {
-            door->addRune();
-            if (door->checkRunes())
-                door->setOpened(true);
-            return true;
-        }
-        return false;
-    });
+    Item* rune2 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 6, 185), true, 1);
     items.push_back(rune2);
 
-    Item* rune3 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 40, 50), true, 1);
-    rune3->setUseFunction([this, rune3]() -> bool{
-        if (rune3->getHolder()->colideCom(*door) && !door->isOpened()) {
-            door->addRune();
-            if (door->checkRunes())
-                door->setOpened(true);
-            return true;
-        }
-        return false;
-    });
+    Item* rune3 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 44, 209), true, 1);
     items.push_back(rune3);
 
-    Item* slingshot = new Item(ObjetoDeJogo("Slingshot", Sprite("rsc/Sprites/Slingshot.img"), 20, 50));
+    Item* slingshot = new Item(ObjetoDeJogo("Slingshot", Sprite("rsc/Sprites/Slingshot.img"), 46, 34));
     slingshot->setUseFunction([this, slingshot]() -> bool {
         controller->createBullet(slingshot->getHolder(), 10, 20, 1);
         return true;
     });
     items.push_back(slingshot);
+
+    // Altares
+    Altar* altar1 = new Altar(4, 8);
+    altars.push_back(altar1);
+
+    Altar* altar2 = new Altar(4, 126);
+    altars.push_back(altar2);
+
+    Altar* altar3 = new Altar(45, 139);
+    altars.push_back(altar3);
 
     // Barras
     healthBar = new Bars(60, 267, player->getHealth());
@@ -100,6 +109,7 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
 
         int posL = player->getPosL(), posC = player->getPosC();
         Item* item = nullptr;
+        Altar* altar = nullptr;
 
         switch (ch) {
             case 'w':
@@ -132,8 +142,13 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
 
             case 'j':
                 item = getColissionItem();
+                altar = getColissionAltar();
                 if (item != nullptr) {
                     player->addItem(item);
+                } else {
+                    if (altar != nullptr) {
+                        altar->transferItem(player);
+                    }
                 }
                 break;
 
@@ -142,7 +157,16 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
                 break;
 
             case 'l':
-                player->useItem();
+                altar = getColissionAltar();
+                if (altar != nullptr) {
+                    altar->receiveItem(player);
+                } else {
+                    player->useItem();
+                }
+                break;
+            
+            case 'p':
+                debug("Player Position: " + to_string(player->getPosL()) + ", " + to_string(player->getPosC()));
                 break;
         }
 
@@ -163,7 +187,6 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
             }
         }
 
-
         update(screen);
         draw(screen);
         system("clear");
@@ -180,9 +203,9 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
 void FaseUm::update(SpriteBuffer &screen) {
     controller->update(screen);
 
-    for (auto obj = objs.begin(); obj != objs.end(); ++obj) {
-        (*obj)->update();
-    }
+    for (auto obj = objs.begin(); obj != objs.end(); ++obj)
+        if ((*obj) != door1 && (*obj) != door2)
+            (*obj)->update();
 
     for (auto item = items.begin(); item != items.end(); ) {
         Item* i = *item;
@@ -198,6 +221,22 @@ void FaseUm::update(SpriteBuffer &screen) {
 
     healthBar->update(player->getHealth());
     defenseBar->update(player->getDefense());
+
+    bool allAltarsHaveRunes = true;
+    
+    for (auto altar = altars.begin(); altar != altars.end(); ++altar) {
+        if ((*altar)->getItem() == nullptr || (*altar)->getItem()->getName() != "Rune") {
+            allAltarsHaveRunes = false;
+            break;
+        }
+    }
+
+    if (allAltarsHaveRunes && !door2->isOpened()) {
+        for (auto altar = altars.begin(); altar != altars.end(); ++altar)
+            (*altar)->setActive(false);
+        door2->setOpened(true);
+        door2->update();
+    }
 }
 
 bool FaseUm::colissionObjs() const {
@@ -207,11 +246,23 @@ bool FaseUm::colissionObjs() const {
         }
     }
 
-    if (player->colideCom(*colisionDoor) && !door->isOpened()) {
+    if (player->colideCom(*door1) && !door1->isOpened()) {
+        return true;
+    }
+
+    if(player->colideCom(*door2) && !door2->isOpened()) {
         return true;
     }
 
     return false;
+}
+
+Altar* FaseUm::getColissionAltar() const {
+    for (auto altar = altars.begin(); altar != altars.end(); ++altar)
+        if (player->colideCom(**altar)) {
+            return *altar;
+        }
+    return nullptr;
 }
 
 Item* FaseUm::getColissionItem() const {
@@ -232,6 +283,10 @@ void FaseUm::draw(SpriteBase &screen, int x, int y) {
 
     for (auto item : items) {
         item->draw(screen, item->getPosL(), item->getPosC());
+    }
+
+    for (auto altar : altars) {
+        altar->draw(screen, altar->getPosL(), altar->getPosC());
     }
 
     healthBar->draw(screen);

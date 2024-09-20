@@ -8,6 +8,7 @@
 #include "../Core/Entity.hpp"
 #include "../Core/Bullet.hpp"
 #include "../Core/Enemy.hpp"
+#include "../Core/Altar.hpp"
 #include "../Core/Item.hpp"
 #include "../Core/Door.hpp"
 #include "../Core/Bars.hpp"
@@ -16,17 +17,20 @@
 #include <vector>
 #include <list>
 
+#include <fstream>
+
 using namespace std;
 
 class FaseUm : public Fase {
     private:
-        ObjetoDeJogo *selectionItem, *colisionDoor;
+        ObjetoDeJogo *selectionItem, *checkKeyDoor = nullptr;
         Bars *healthBar, *defenseBar;
         list<ObjetoDeJogo*> colisoes;
         Controller* controller;
+        list<Altar*> altars;
         list<Item*> items;
         Player* player;
-        Door *door;
+        Door *door1, *door2;
         Map* map;
 
     public:
@@ -35,12 +39,23 @@ class FaseUm : public Fase {
 
         virtual ~FaseUm() {}
 
+        void debug(const string& msg) {
+            ofstream debugFile("debug.txt", ios::app);
+            if (debugFile.is_open()) {
+                debugFile << msg << endl;
+                debugFile.close();
+            } else {
+                cerr << "Não foi possível abrir o arquivo debug.txt para escrita." << endl;
+            }
+        }
+
         virtual void init();
         virtual unsigned run(SpriteBuffer &screen);
 
         virtual void update(SpriteBuffer &screen);
 
         bool colissionObjs() const;
+        Altar* getColissionAltar() const;
         Item* getColissionItem() const;
         virtual void draw(SpriteBase &screen, int x = 0, int y = 0) override;
 };

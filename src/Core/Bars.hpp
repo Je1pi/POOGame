@@ -38,8 +38,10 @@ class Bars {
                     barra[i]->desativarObj();
                 }
             }
+
             if (activeBars > 0) {
                 if (activeBars != animationAntIndex) {
+                    barra[animationAntIndex - 1]->update();
                     barra[activeBars - 1]->update();
                     animationAntIndex = activeBars;
                 }

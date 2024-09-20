@@ -36,6 +36,8 @@ public:
 	int getPosC() const {return posC;}
 	const SpriteBase *getSprite() const {return pSprite;}
 	
+	void setCor(COR::Cor cor) { pSprite->setCor(cor); }
+
 	void ativarObj() {this->active = true;};
 	void desativarObj() {this->active = false;};
 	
