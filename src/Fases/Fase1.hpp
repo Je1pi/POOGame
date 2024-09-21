@@ -30,7 +30,7 @@ class FaseUm : public Fase {
         list<Altar*> altars;
         list<Item*> items;
         Player* player;
-        Door *door1, *door2;
+        Door *door1, *door2, *portal;
         Map* map;
 
     public:

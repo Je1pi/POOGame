@@ -17,11 +17,13 @@ void FaseUm::init() {
     door2 = new Door(ObjetoDeJogo("Door", SpriteAnimado("rsc/SpritesAnimados/Door.anm"), 3, 298));
     objs.push_back(door2);
 
+    portal = new Door(ObjetoDeJogo("Portal", SpriteAnimado("rsc/SpritesAnimados/Portal.anm"), 42, 309));
+
     // Entidades
     player = new Player(44, 9);
     controller = new Controller(player, map);
     
-    Enemy* enemy1 = new Enemy(44, 50);
+    Enemy* enemy1 = new Enemy(18, 312);
     controller->insertEntity(enemy1);
 
     Enemy* enemy2 = new Enemy(24, 55);
@@ -75,7 +77,7 @@ void FaseUm::init() {
 
     Item* slingshot = new Item(ObjetoDeJogo("Slingshot", Sprite("rsc/Sprites/Slingshot.img"), 46, 34));
     slingshot->setUseFunction([this, slingshot]() -> bool {
-        controller->createBullet(slingshot->getHolder(), 10, 20, 1);
+        controller->createBullet(slingshot->getHolder(), 10, 20, 0);
         return true;
     });
     items.push_back(slingshot);
@@ -195,6 +197,10 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
         if (player->getHealth() <= 0) {
             return Fase::GAME_OVER;
         }
+
+        if (player->colideCom(*portal)) {
+            return Fase::END_GAME;
+        }
     }
 
     return 0;
@@ -236,6 +242,7 @@ void FaseUm::update(SpriteBuffer &screen) {
             (*altar)->setActive(false);
         door2->setOpened(true);
         door2->update();
+        portal->update();
     }
 }
 
@@ -288,6 +295,8 @@ void FaseUm::draw(SpriteBase &screen, int x, int y) {
     for (auto altar : altars) {
         altar->draw(screen, altar->getPosL(), altar->getPosC());
     }
+
+    portal->draw(screen, portal->getPosL(), portal->getPosC());
 
     healthBar->draw(screen);
     defenseBar->draw(screen);

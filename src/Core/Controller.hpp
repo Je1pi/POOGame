@@ -94,7 +94,7 @@ class Controller {
 
             if (timeSinceLastUse >= cooldownDurationMs) {
                 entity->setDirection(direction);
-                createBullet(entity, 10, 20, 1);
+                createBullet(entity, 10, 20, 0);
                 lastUseTime = now;
             }
         }
@@ -259,7 +259,7 @@ class Controller {
                 Bullet* bullet = *it;
                 bool isMoving = bullet->moveUpdate(screen);
 
-                if (!isMoving || isCollidingWithMap(bullet)) {
+                if (!isMoving || isCollidingWithMap(bullet) || bullet->getPosL() > screen.getAltura() - bullet->getSprite()->getAltura() - 20) {
                     it = bullets.erase(it);
                     delete bullet;
                 } else {

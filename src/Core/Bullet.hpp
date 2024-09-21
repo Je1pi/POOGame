@@ -34,8 +34,8 @@ class Bullet : public Entity {
             int midL = entityL / 2;
             int midA = entityA / 2;
 
-            int entityCenterL = entity->getPosL() + midL;
-            int entityCenterC = entity->getPosC() + midA;
+            int entityCenterL = entity->getPosL() + midA;
+            int entityCenterC = entity->getPosC() + midL;
 
             moveTo(entityCenterL, entityCenterC);
 
