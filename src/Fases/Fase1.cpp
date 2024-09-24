@@ -170,6 +170,10 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
             case 'p':
                 debug("Player Position: " + to_string(player->getPosL()) + ", " + to_string(player->getPosC()));
                 break;
+            
+            case 'o':
+                return Fase::LEVEL_COMPLETE;
+                break;
         }
 
         if (colissionObjs() || map->colission(player)) {
@@ -199,7 +203,7 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
         }
 
         if (player->colideCom(*portal)) {
-            return Fase::END_GAME;
+            return Fase::LEVEL_COMPLETE;
         }
     }
 

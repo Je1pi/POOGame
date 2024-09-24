@@ -1,2 +1,0 @@
-Player Position: 42, 311
-Player Position: 18, 311
