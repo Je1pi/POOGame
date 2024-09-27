@@ -3,14 +3,16 @@
 
 #include "Item.hpp"
 #include "Player.hpp"
+#include "../ASCII_Engine/Cores.hpp"
 
 class Altar : public ObjetoDeJogo{
     private:
-        Item* item;
-        bool active;
-    
+        Item* item, *ref;
+        bool active = false;
+        COR::Cor cor;
+
     public:
-        Altar(const int& posL, const int& posC) : ObjetoDeJogo("Altar", Sprite("rsc/Sprites/Altar.img"), posL, posC), item(nullptr), active(true) {}
+        Altar(const int& posL, const int& posC, Item* ref = nullptr, COR::Cor color = COR::PADRAO) : ObjetoDeJogo("Altar", Sprite("rsc/Sprites/Altar.img", color), posL, posC), item(nullptr), ref(ref), cor(color) {}
         virtual ~Altar() {}
 
         void setItem(Item* item) {
@@ -25,8 +27,8 @@ class Altar : public ObjetoDeJogo{
             item = nullptr;
         }
         
-        void setActive(bool active) {
-            this->active = active;
+        bool isActive() const {
+            return active;
         }
 
         void transferItem(Player* player) {
@@ -34,20 +36,32 @@ class Altar : public ObjetoDeJogo{
                 item->ativarObj();
                 player->addItem(item);
                 removeItem();
-                this->setCor(COR::PADRAO);
+                this->setCor(cor);
+                this->active = false;
             }
         }
 
         void receiveItem(Player* player) {
+            bool receive = false;
+
             if (player->getSelectedItem() != nullptr && this->item == nullptr) {
-                setItem(player->getSelectedItem());
-                player->removeItem();
-                if (item->getName() == "Rune") {
-                    this->setCor(COR::VERDE);
+                Item *temp = player->getSelectedItem();
+                
+                if (ref != nullptr) {
+                    if (temp == ref) receive = true;
+
                 } else {
-                    this->setCor(COR::VERMELHA);
+                    if (item->getName() == "Rune") receive = true;
                 }
-                item->desativarObj();
+
+                if (receive) {
+                    player->removeItem();
+                    setItem(temp);
+                    item->moveTo(this->getPosL(), this->getPosC());
+                    item->desativarObj();
+                    this->setCor(COR::CIANO);
+                    this->active = true;
+                }
             }
         }
 };

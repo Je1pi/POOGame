@@ -17,8 +17,6 @@
 #include <vector>
 #include <list>
 
-#include <fstream>
-
 using namespace std;
 
 class FaseUm : public Fase {
@@ -38,16 +36,6 @@ class FaseUm : public Fase {
         FaseUm(string name, const SpriteAnimado &bkg, Map* map) : Fase(name, bkg), map(map) {}
 
         virtual ~FaseUm() {}
-
-        void debug(const string& msg) {
-            ofstream debugFile("debug.txt", ios::app);
-            if (debugFile.is_open()) {
-                debugFile << msg << endl;
-                debugFile.close();
-            } else {
-                cerr << "Não foi possível abrir o arquivo debug.txt para escrita." << endl;
-            }
-        }
 
         virtual void init();
         virtual unsigned run(SpriteBuffer &screen);

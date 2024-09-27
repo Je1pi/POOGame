@@ -60,21 +60,36 @@ void FaseUm::init() {
     items.push_back(key);
 
     Item* potion = new Item(ObjetoDeJogo("Potion", Sprite("rsc/Sprites/Potion.img"), 5, 84), true, 1);
-    potion->setUseFunction([this, potion]() -> bool{
-        player->addHealth(20);
+    potion->setUseFunction([this]() -> bool{
+        player->addHealth(50);
         return true;
     });
     items.push_back(potion);
 
-    Item* rune1 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 46, 112), true, 1);
+    Item* shield = new Item(ObjetoDeJogo("Shield", Sprite("rsc/Sprites/Shield.img"), 34, 252), true, 1);
+    shield->setUseFunction([this]() -> bool{
+        player->addDefense(60);
+        return true;
+    });
+    items.push_back(shield);
+
+    // Runes and Altars
+    Item* rune1 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img", COR::VERMELHA), 46, 112), true, 1);
+    Altar* altar1 = new Altar(45, 139, rune1, COR::VERMELHA);
+    altars.push_back(altar1);
     items.push_back(rune1);
 
-    Item* rune2 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 6, 185), true, 1);
+    Item* rune2 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img", COR::VERDE), 6, 185), true, 1);
+    Altar* altar2 = new Altar(4, 126, rune2, COR::VERDE);
+    altars.push_back(altar2);
     items.push_back(rune2);
 
-    Item* rune3 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img"), 44, 209), true, 1);
+    Item* rune3 = new Item(ObjetoDeJogo("Rune", Sprite("rsc/Sprites/Rune.img", COR::AMARELA), 44, 209), true, 1);
+    Altar* altar3 = new Altar(4, 8, rune3, COR::AMARELA);
+    altars.push_back(altar3);
     items.push_back(rune3);
 
+    // Weapon
     Item* slingshot = new Item(ObjetoDeJogo("Slingshot", Sprite("rsc/Sprites/Slingshot.img"), 46, 34));
     slingshot->setUseFunction([this, slingshot]() -> bool {
         controller->createBullet(slingshot->getHolder(), 10, 20, 0);
@@ -82,19 +97,9 @@ void FaseUm::init() {
     });
     items.push_back(slingshot);
 
-    // Altares
-    Altar* altar1 = new Altar(4, 8);
-    altars.push_back(altar1);
-
-    Altar* altar2 = new Altar(4, 126);
-    altars.push_back(altar2);
-
-    Altar* altar3 = new Altar(45, 139);
-    altars.push_back(altar3);
-
     // Barras
-    healthBar = new Bars(60, 267, player->getHealth());
-    defenseBar = new Bars(68, 267, player->getDefense());
+    healthBar = new Bars(60, 267, player->getHealth(), COR::VERMELHA);
+    defenseBar = new Bars(68, 267, player->getDefense(), COR::CIANO);
 }
 
 unsigned FaseUm::run(SpriteBuffer &screen) {
@@ -167,10 +172,6 @@ unsigned FaseUm::run(SpriteBuffer &screen) {
                 }
                 break;
             
-            case 'p':
-                debug("Player Position: " + to_string(player->getPosL()) + ", " + to_string(player->getPosC()));
-                break;
-            
             case 'o':
                 return Fase::LEVEL_COMPLETE;
                 break;
@@ -232,18 +233,16 @@ void FaseUm::update(SpriteBuffer &screen) {
     healthBar->update(player->getHealth());
     defenseBar->update(player->getDefense());
 
-    bool allAltarsHaveRunes = true;
-    
-    for (auto altar = altars.begin(); altar != altars.end(); ++altar) {
-        if ((*altar)->getItem() == nullptr || (*altar)->getItem()->getName() != "Rune") {
-            allAltarsHaveRunes = false;
+    bool allAltarsActive = true;
+
+    for (auto altar : altars) {
+        if (!altar->isActive()) {
+            allAltarsActive = false;
             break;
         }
     }
 
-    if (allAltarsHaveRunes && !door2->isOpened()) {
-        for (auto altar = altars.begin(); altar != altars.end(); ++altar)
-            (*altar)->setActive(false);
+    if (allAltarsActive && !door2->isOpened()) {
         door2->setOpened(true);
         door2->update();
         portal->update();
