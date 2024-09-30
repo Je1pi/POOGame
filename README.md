@@ -9,16 +9,16 @@ Desenvolver um jogo aplicando os conceitos de POO aprendidos durante o curso.
 
 ## Funcionalidades
 
-- **Personagens**: Criação e gerenciamento de personagens.
-- **Níveis**: Implementação de diferentes níveis de dificuldade.
-- **Pontuação**: Sistema de pontuação para os jogadores.
+- **Entidades**: Criação e gerenciamento de entidades (Player e Inimigos).
+- **Níveis**: Criação independente de cada nível.
+- **Itens**: Criação dinamica de itens.
 - **Gráficos**: Utilização de gráficos fornecidos pela engine.
 
 ## Tecnologias Utilizadas
 
-- **Linguagem de Programação**: [Especificar a linguagem, ex: Java, C++]
-- **Engine de Jogo**: [Nome da engine]
-- **Ferramentas de Desenvolvimento**: [Especificar IDEs, bibliotecas, etc.]
+- **Linguagem de Programação**: C++
+- **Engine de Jogo**: [ASCII_Engine](https://github.com/victorHSS/Cpp-ASCII-Game-Engine)
+- **Ferramentas de Desenvolvimento**: Visual Studio Code
 
 ## Como Executar
 
